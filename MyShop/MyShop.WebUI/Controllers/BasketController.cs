@@ -11,11 +11,12 @@ namespace MyShop.WebUI.Controllers
     public class BasketController : Controller
     {
         IBasketService basketService;
+        IOrderService orderService;
 
-        public BasketController(IBasketService BasketService)
+        public BasketController(IBasketService BasketService, IOrderService OrderService)
         {
             this.basketService = BasketService;
-          
+            this.orderService = OrderService;
         }
         // GET: Basket2
         public ActionResult Index()
@@ -45,6 +46,38 @@ namespace MyShop.WebUI.Controllers
             return PartialView(basketSummary);
         }
 
+        [Authorize]
+        public ActionResult Checkout()
+        {
+          
+
+                return View();
+            }
+          
+
         
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult Checkout(Order order)
+        {
+
+            var basketItems = basketService.GetBasketItems(this.HttpContext);
+            order.OrderStatus = "Order Created";
+
+            //process payment
+
+            order.OrderStatus = "Payment Processed";
+            orderService.CreateOrder(order, basketItems);
+            basketService.ClearBasket(this.HttpContext);
+
+            return RedirectToAction("Thankyou", new { OrderId = order.Id });
+        }
+
+        public ActionResult ThankYou(string OrderId)
+        {
+            ViewBag.OrderId = OrderId;
+            return View();
+        }
     }
 }

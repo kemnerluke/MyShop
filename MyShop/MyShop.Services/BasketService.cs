@@ -94,15 +94,15 @@ namespace MyShop.Services
             basketContext.Commit();
         }
 
-        public void RemoveFromBasket(HttpContextBase httpContext, string productId)
+        public void RemoveFromBasket(HttpContextBase httpContext, string itemId)
         {
             Basket basket = GetBasket(httpContext, true);
-            BasketItem item = basket.BasketItems.FirstOrDefault(i => i.ProductId == productId);
+            BasketItem item = basket.BasketItems.FirstOrDefault(i => i.Id == itemId);
 
             if (item != null)
             {
                 basket.BasketItems.Remove(item);
-                basket.BasketItems.Add(item);
+                basketContext.Commit();
             }
         }
 
